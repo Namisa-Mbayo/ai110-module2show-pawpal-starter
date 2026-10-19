@@ -1,0 +1,51 @@
+classDiagram
+    class Owner {
+        -String ownerId
+        -String name
+        -int availableMinutesPerDay
+        -List~String~ preferences
+        -List~Pet~ pets
+        +addPet(pet) void
+        +getPets() List~Pet~
+    }
+
+    class Pet {
+        -String petId
+        -String name
+        -String species
+        -String breed
+        -List~Task~ tasks
+        +addTask(task) void
+        +removeTask(task) void
+        +getTasks() List~Task~
+    }
+
+    class Task {
+        -String taskId
+        -String name
+        -String category
+        -int durationMinutes
+        -String priority
+        -boolean isRecurring
+        -boolean isDone
+        +markDone() void
+        +conflictsWith(otherTask) bool
+    }
+
+    class Scheduler {
+        -String schedulerId
+        -Date date
+        -List~Task~ scheduledTasks
+        -String reasoningNotes
+        +generatePlan(pet, availableMinutes) void
+        +sortByPriority(tasks) List~Task~
+        +filterByTimeAvailable(tasks, minutes) List~Task~
+        +addTask(task, time) void
+        +getSchedule() List~Task~
+        +explain() String
+    }
+
+    Owner "1" --> "many" Pet : has
+    Pet "1" *-- "many" Task : owns
+    Pet "1" --> "many" DailyPlan : generates
+    DailyPlan "many" --> "many" Task : schedules
