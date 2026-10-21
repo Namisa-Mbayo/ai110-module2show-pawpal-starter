@@ -1,0 +1,71 @@
+classDiagram
+    class Owner {
+        -String ownerId
+        -String name
+        -Time dayStart
+        -Time dayEnd
+        -List~TimeSlot~ blockedTimeSlots
+        -List~Pet~ pets
+        +addPet(pet) void
+        +getPets() List~Pet~
+        +getAllTasks() List~Task~
+        +getAvailableMinutes() int
+    }
+
+    class Pet {
+        -String petId
+        -String name
+        -String species
+        -String breed
+        -List~Task~ tasks
+        +addTask(task) void
+        +removeTask(task) void
+        +getTasks() List~Task~
+    }
+
+    class Task {
+        -String taskId
+        -String name
+        -String category
+        -int durationMinutes
+        -int priority
+        -String frequency
+        -Date startDate
+        +isDueOn(day) bool
+    }
+
+    class Scheduler {
+        -String schedulerId
+        -Date date
+        -List~ScheduledItem~ scheduledItems
+        -String reasoningNotes
+        +generatePlan(owner) void
+        +sortByPriority(tasks) List~Task~
+        +filterByTimeAvailable(tasks, minutes) List~Task~
+        +assignTimesAndBuildSchedule(tasks, owner) List~ScheduledItem~
+        +sortByTime(items) List~ScheduledItem~
+        +getSchedule() List~ScheduledItem~
+        +filterItems(isDone, petName) List~ScheduledItem~
+        +addItem(item) void
+        +findConflicts() List~String~
+        +explain() String
+    }
+
+    class ScheduledItem {
+        -Task task
+        -Pet pet
+        -DateTime startTime
+        -DateTime endTime
+        -boolean isDone
+        +markDone() void
+        +conflictsWith(other) bool
+    }
+
+    Owner "1" o-- "many" Pet : has
+    Pet "1" *-- "many" Task : owns
+    Scheduler ..> Owner : plans for
+    Scheduler ..> Task : sorts and filters
+    Scheduler "1" *-- "many" ScheduledItem : creates and holds
+    ScheduledItem "many" --> "1" Task : schedules
+    ScheduledItem "many" --> "1" Pet : for
+    ScheduledItem ..> ScheduledItem : conflictsWith
