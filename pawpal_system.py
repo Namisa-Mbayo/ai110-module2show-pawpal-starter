@@ -291,11 +291,61 @@ class Scheduler:
                     break
                 start = max(clashes)  # jump past whatever is in the way and try again
 
-        return sorted(items, key=lambda item: item.start_time)
+        return self.sort_by_time(items)
+
+    def sort_by_time(self, items: list[ScheduledItem]) -> list[ScheduledItem]:
+        """Return the items ordered from earliest to latest start_time.
+
+        Ties (same start) are broken by end_time, so the shorter item comes first.
+        Returns a new list; the original is left unchanged.
+        """
+        return sorted(items, key=lambda item: (item.start_time, item.end_time))
+
+    def filter_items(
+        self, is_done: bool | None = None, pet_name: str | None = None
+    ) -> list[ScheduledItem]:
+        """Return the scheduled items that match every filter given, in time order.
+
+        - is_done: True for completed items, False for not-yet-done items, None for both
+        - pet_name: only items for the pet with this name (case-insensitive), None for all pets
+        With no filters, returns the whole schedule.
+        """
+        items = self.scheduled_items
+        if is_done is not None:
+            items = [item for item in items if item.is_done == is_done]
+        if pet_name is not None:
+            wanted = pet_name.strip().lower()
+            items = [item for item in items if item.pet.name.lower() == wanted]
+        return self.sort_by_time(items)
+
+    def add_item(self, item: ScheduledItem) -> None:
+        """Add an item booked at a fixed time, e.g. a vet appointment the owner already has.
+
+        The item is added even if it overlaps something; use find_conflicts() to check.
+        """
+        self.scheduled_items.append(item)
+
+    def find_conflicts(self) -> list[str]:
+        """Return a warning message for every pair of scheduled items whose times overlap.
+
+        Returns an empty list when the schedule has no conflicts.
+        """
+        items = self.get_schedule()
+        warnings = []
+        for i, first in enumerate(items):
+            for second in items[i + 1 :]:
+                if first.conflicts_with(second):
+                    warnings.append(
+                        f"Conflict: {first.task.name} ({first.pet.name}) "
+                        f"{first.start_time:%H:%M}-{first.end_time:%H:%M} overlaps "
+                        f"{second.task.name} ({second.pet.name}) "
+                        f"{second.start_time:%H:%M}-{second.end_time:%H:%M}"
+                    )
+        return warnings
 
     def get_schedule(self) -> list[ScheduledItem]:
         """Return a copy of the scheduled items in time order."""
-        return sorted(self.scheduled_items, key=lambda item: item.start_time)
+        return self.sort_by_time(self.scheduled_items)
 
     def explain(self) -> str:
         """Return a human-readable explanation of why the plan looks the way it does."""

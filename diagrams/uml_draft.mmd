@@ -41,6 +41,10 @@ classDiagram
         -String reasoningNotes
         +generatePlan(owner) void
         +sortByPriority(tasks) List~Task~
+        +sortByTime(items) List~ScheduledItem~
+        +filterItems(isDone, petName) List~ScheduledItem~
+        +addItem(item) void
+        +findConflicts() List~String~
         +filterByTimeAvailable(tasks, minutes) List~Task~
         +assignTimesAndBuildSchedule(tasks, owner) List~ScheduledItem~
         +getSchedule() List~ScheduledItem~
