@@ -32,7 +32,6 @@ classDiagram
         -String frequency
         -Date startDate
         +isDueOn(day) bool
-        +conflictsWith(otherTask) bool
     }
 
     class Scheduler {
@@ -43,7 +42,7 @@ classDiagram
         +generatePlan(owner) void
         +sortByPriority(tasks) List~Task~
         +filterByTimeAvailable(tasks, minutes) List~Task~
-        +assignTimesAndBuildSchedule(tasks, dayStart, dayEnd, blockedTimes) List~ScheduledItem~
+        +assignTimesAndBuildSchedule(tasks, owner) List~ScheduledItem~
         +getSchedule() List~ScheduledItem~
         +explain() String
     }
@@ -55,6 +54,7 @@ classDiagram
         -DateTime endTime
         -boolean isDone
         +markDone() void
+        +conflictsWith(other) bool
     }
 
     Owner "1" --> "many" Pet : has
